@@ -12,16 +12,21 @@ async function main() {
 
   const lockedAmount = hre.ethers.parseEther("0.001");
 
-  const lock = await hre.ethers.deployContract("Lock", [unlockTime], {
-    value: lockedAmount,
-  });
+  const MYTOKEN = await hre.ethers.deployContract("MYTOKEN");
 
-  await lock.waitForDeployment();
+  await MYTOKEN.waitForDeployment();
 
+  const Crowdsale = await hre.ethers.deployContract("Crowdsale", [10,10,1,MYTOKEN.address]);
+
+  await Crowdsale.waitForDeployment();
+
+  await MYTOKEN.transfer(Crowdsale.address, 1000000);
+
+  
   console.log(
     `Lock with ${ethers.formatEther(
       lockedAmount
-    )}ETH and unlock timestamp ${unlockTime} deployed to ${lock.target}`
+    )}ETH and unlock timestamp ${unlockTime} deployed to ${MYTOKEN.target}`
   );
 }
 
