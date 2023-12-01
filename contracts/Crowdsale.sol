@@ -18,18 +18,15 @@ contract Crowdsale is Ownable {
     bool public crowdsaleClosed = false;          // Indique si la campagne de financement est close
 
     // Événements pour enregistrer des logs
-    event GoalReached(address recipient, uint totalAmountRaised);
     event FundTransfer(address backer, uint amount, bool isContribution);
 
     // Constructeur pour initialiser le contrat Crowdsale, en appelant également le constructeur Ownable
     constructor(
-        address ifSuccessfulSendTo,
         uint fundingGoalInEthers,
         uint durationInMinutes,
         uint etherCostOfEachToken,
         address addressOfTokenUsedAsReward
     ) Ownable() {
-        beneficiary = ifSuccessfulSendTo;
         fundingGoal = fundingGoalInEthers * 1 ether;
         deadline = block.timestamp + durationInMinutes * 1 minutes;
         price = etherCostOfEachToken * 1 ether;
@@ -57,16 +54,6 @@ contract Crowdsale is Ownable {
     modifier afterDeadline() {
         if (block.timestamp >= deadline)
             _;
-    }
-
-    // Fonction pour vérifier si l'objectif de collecte a été atteint après la date limite
-    function checkGoalReached() public afterDeadline {
-        if (amountRaised >= fundingGoal){
-            fundingGoalReached = true;
-
-            // Émet un événement pour enregistrer l'atteinte de l'objectif
-            emit GoalReached(beneficiary, amountRaised);
-        }
     }
 
     // Fonction pour retirer les jetons si l'objectif de collecte est atteint
