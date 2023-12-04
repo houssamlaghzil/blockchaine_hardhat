@@ -12,6 +12,7 @@ contract Crowdsale is Ownable {
     uint public price;
     IERC20 public tokenReward;
     mapping(address => uint256) public balanceOf;
+    mapping(address => uint256) public vestingInfo; // Ajout du mapping pour stocker les informations de vesting
     bool public fundingGoalReached = false;
     bool public crowdsaleClosed = false;
 
@@ -22,7 +23,7 @@ contract Crowdsale is Ownable {
         uint durationInMinutes,
         uint etherCostOfEachToken,
         address addressOfTokenUsedAsReward
-    ) Ownable(msg.sender) {  // Appel au constructeur de la classe parente Ownable
+    ) Ownable(msg.sender) {
         fundingGoal = fundingGoalInEthers * 1 ether;
         deadline = block.timestamp + durationInMinutes * 1 minutes;
         price = etherCostOfEachToken * 1 ether;
@@ -31,16 +32,16 @@ contract Crowdsale is Ownable {
 
     function buy() payable public {
         require(!crowdsaleClosed);
-        console.log("msg.value: %s", msg.value);
-        console.log("fundingGoal: %s", fundingGoal);
-        console.log("amountRaised: %s", amountRaised);
-        console.log(msg.value ,'<=', fundingGoal - amountRaised);
-        console.log(msg.value <= fundingGoal - amountRaised);
         require(msg.value <= fundingGoal - amountRaised);
         uint amount = msg.value;
         balanceOf[msg.sender] += amount;
         amountRaised += amount;
-        tokenReward.transfer(msg.sender, amount / price);
+
+        // Ajout de la logique de vesting
+        uint vestedAmount = calculateVestedAmount(amount);
+        vestingInfo[msg.sender] += vestedAmount;
+
+        tokenReward.transfer(msg.sender, vestedAmount / price);
         emit FundTransfer(msg.sender, amount, true);
     }
 
@@ -58,5 +59,19 @@ contract Crowdsale is Ownable {
 
     function withdrawFunds() public onlyOwner afterDeadline {
         payable(owner()).transfer(address(this).balance);
+    }
+
+    // Fonction pour calculer la quantité de tokens avec vesting
+    function calculateVestedAmount( uint256 amount) internal view returns (uint256) {
+        // Ajoutez votre logique de vesting ici, en fonction des besoins spécifiques de votre contrat
+        // Cette fonction doit retourner la quantité de tokens qui seront débloqués immédiatement
+        // Vous pouvez utiliser le mapping vestingInfo pour stocker des informations de vesting spécifiques à chaque contributeur
+        // Exemple simple : 50% débloqué immédiatement, le reste après 30 jours
+        uint256 immediateRelease = amount / 2;
+        if (block.timestamp < deadline + 3 seconds) {
+            return immediateRelease;
+        } else {
+            return amount;
+        }
     }
 }
