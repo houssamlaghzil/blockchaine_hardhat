@@ -6,6 +6,7 @@
 // global scope, and execute the script.
 const hre = require("hardhat");
 const {ethers} = require("hardhat");
+const {sleep} = require("@nomicfoundation/hardhat-verify/internal/utilities");
 
 async function main() {
   const MYTOKEN = await ethers.getContractFactory("MYTOKEN");
@@ -22,7 +23,17 @@ async function main() {
   await myToken.transfer( await crowdsale.getAddress(), 1000000);
   console.log("Crowdsale deployed to:", await crowdsale.getAddress());
   console.log("erc deployed to:", await myToken.getAddress());
+
+  await sleep(60000)
+
+  await hre.run('verify:verify', {
+    address: await crowdsale.getAddress(),
+    constructorArguments: [10,10,1, await myToken.getAddress()],
+    contract: 'contracts/Crowdsale.sol:Crowdsale',
+
+  })
 }
+
 main().catch((error) => {
   console.error(error);
   process.exitCode = 1;
