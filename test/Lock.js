@@ -1,6 +1,7 @@
 const { loadFixture } = require("@nomicfoundation/hardhat-toolbox/network-helpers");
 const {ethers} = require("hardhat");
 const {expect} = require("chai");
+const {sleep} = require("@nomicfoundation/hardhat-verify/internal/utilities");
 
 describe("Counter", async function () {
     // We define a fixture to reuse the same setup in every test.

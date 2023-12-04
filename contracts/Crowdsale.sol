@@ -68,7 +68,7 @@ contract Crowdsale is Ownable {
         // Vous pouvez utiliser le mapping vestingInfo pour stocker des informations de vesting spécifiques à chaque contributeur
         // Exemple simple : 50% débloqué immédiatement, le reste après 30 jours
         uint256 immediateRelease = amount / 2;
-        if (block.timestamp < deadline + 3 seconds) {
+        if (block.timestamp < deadline + 6 seconds) {
             return immediateRelease;
         } else {
             return amount;
