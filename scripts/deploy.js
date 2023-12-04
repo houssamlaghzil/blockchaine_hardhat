@@ -22,7 +22,7 @@ async function main() {
 
   await MYTOKEN.transfer(Crowdsale.address, 1000000);
 
-  
+
   console.log(
     `Lock with ${ethers.formatEther(
       lockedAmount
